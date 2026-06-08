@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WinBet Dashboard</title>
+<style>
+:root{
+  --bg:#0b1121;--card:#151e32;--card-h:#1a2642;--text:#e2e8f0;--muted:#94a3b8;
+  --accent:#38bdf8;--accent2:#818cf8;--danger:#f87171;--success:#34d399;--warn:#fbbf24;
+  --border:#1e293b;--hover:#1a2642
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+
+/* Header */
+header{
+  background:linear-gradient(135deg,#0b1121,#1a2642);
+  padding:14px 20px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px
+}
+header h1{font-size:1.5em;color:var(--accent);display:flex;align-items:center;gap:10px}
+header .sub{color:var(--muted);font-size:0.8em}
+.stats{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+.stat{background:var(--card);padding:6px 12px;border-radius:8px;font-size:0.8em;border:1px solid var(--border)}
+.stat .v{color:var(--accent);font-weight:700}
+.stat .l{color:var(--muted);margin-right:4px}
+.btn-action{
+  background:rgba(248,113,113,0.1);color:var(--danger);
+  border:1px solid rgba(248,113,113,0.3);padding:6px 12px;border-radius:8px;
+  font-size:0.8em;cursor:pointer;display:flex;align-items:center;gap:6px;
+  transition:all .15s
+}
+.btn-action:hover{background:rgba(248,113,113,0.2);border-color:var(--danger)}
+.btn-action:disabled{opacity:0.5;cursor:not-allowed}
+.btn-action .badge-finished{
+  background:var(--danger);color:#fff;padding:1px 6px;border-radius:10px;
+  font-size:0.85em;font-weight:700
+}
+.toast{
+  position:fixed;top:20px;right:20px;background:var(--card);
+  border:1px solid var(--accent);border-radius:8px;padding:12px 18px;
+  font-size:0.88em;box-shadow:0 4px 20px rgba(0,0,0,0.4);z-index:1000;
+  display:none;max-width:380px
+}
+.toast.show{display:block;animation:slideIn 0.3s ease}
+.toast.error{border-color:var(--danger)}
+.toast.success{border-color:var(--success)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* Layout 3 colonne */
+.main{
+  display:grid;grid-template-columns:260px 1fr 340px;gap:14px;padding:14px;
+  min-height:calc(100vh - 70px);max-height:calc(100vh - 70px)
+}
+.col{
+  background:var(--card);border-radius:12px;border:1px solid var(--border);
+  overflow:hidden;display:flex;flex-direction:column
+}
+.col-header{
+  padding:12px 14px;background:var(--card-h);border-bottom:1px solid var(--border);
+  font-weight:600;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:5
+}
+.col-header h2{font-size:0.95em;display:flex;align-items:center;gap:8px}
+.col-body{overflow-y:auto;flex:1;padding:8px}
+
+/* Colonna sinistra: campionati */
+.lg-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;border-radius:7px;cursor:pointer;
+  font-size:0.88em;transition:all .15s;border:1px solid transparent
+}
+.lg-item:hover{background:var(--hover);border-color:var(--border)}
+.lg-item.active{background:rgba(56,189,248,0.12);border-color:var(--accent);color:var(--accent)}
+.lg-name{flex:1;font-weight:500}
+.lg-count{
+  background:var(--card-h);color:var(--muted);padding:2px 8px;border-radius:10px;
+  font-size:0.85em;font-weight:600;min-width:28px;text-align:center
+}
+.lg-item.active .lg-count{background:var(--accent);color:#0f172a}
+.lg-item .flag{margin-right:6px;font-size:1.1em}
+.bk-filter{
+  display:flex;align-items:center;gap:6px;padding:5px 10px;
+  font-size:0.78em;color:var(--muted);cursor:pointer;border-radius:5px
+}
+.bk-filter:hover{color:var(--text);background:var(--hover)}
+.bk-filter input{accent-color:var(--accent);cursor:pointer}
+.bk-filters{padding:6px;border-top:1px solid var(--border);max-height:180px;overflow-y:auto}
+.bk-filters h3{font-size:0.7em;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px;letter-spacing:.5px;position:sticky;top:0;background:var(--card)}
+.search-box{padding:6px 10px;border-bottom:1px solid var(--border)}
+.search-box input{
+  width:100%;padding:6px 10px;border-radius:5px;
+  border:1px solid var(--border);background:#0f172a;color:var(--text);font-size:0.85em
+}
+.search-box input:focus{outline:none;border-color:var(--accent)}
+
+/* Colonna centrale: partite */
+.match-card{
+  background:var(--card-h);border-radius:9px;border:1px solid var(--border);
+  margin-bottom:10px;overflow:hidden;transition:border-color .15s
+}
+.match-card:hover{border-color:var(--accent2)}
+.match-head{padding:10px 14px;border-bottom:1px solid var(--border);background:rgba(15,23,42,0.3);cursor:pointer;user-select:none}
+.match-head .chevron{transition:transform .25s;color:var(--muted);font-size:0.85em;margin-left:6px}
+.match-card.open .chevron{transform:rotate(180deg);color:var(--accent)}
+.match-teams{font-size:1.02em;font-weight:700;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+.match-teams .vs{color:var(--muted);margin:0 6px;font-weight:400}
+.match-teams .home{color:var(--accent)}
+.match-teams .away{color:var(--accent2)}
+.match-meta{display:flex;gap:8px;flex-wrap:wrap;font-size:0.75em;color:var(--muted);align-items:center}
+.lg-tag{background:rgba(129,140,248,0.12);color:var(--accent2);padding:1px 6px;border-radius:3px}
+.date-tag{font-size:0.9em}
+.match-body{
+  max-height:0;overflow:hidden;transition:max-height .3s ease;
+  padding:0 14px
+}
+.match-card.open .match-body{
+  max-height:3000px;padding:10px 14px
+}
+.mkt-section{
+  background:rgba(15,23,42,0.5);border:1px solid var(--border);
+  border-radius:7px;padding:10px 12px;margin-bottom:8px
+}
+.mkt-title{
+  font-size:0.78em;color:var(--accent);text-transform:uppercase;
+  letter-spacing:.5px;font-weight:700;margin-bottom:8px;
+  display:flex;align-items:center;justify-content:space-between
+}
+.mkt-title .mkt-count{
+  background:rgba(56,189,248,0.12);color:var(--muted);padding:1px 7px;
+  border-radius:8px;font-size:0.85em;font-weight:500
+}
+.bk-table{
+  width:100%;border-collapse:collapse;font-size:0.82em
+}
+.bk-table th{
+  text-align:left;padding:6px 8px;color:var(--muted);
+  font-size:0.7em;text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border);font-weight:600
+}
+.bk-table td{
+  padding:7px 8px;border-bottom:1px dashed rgba(255,255,255,0.05)
+}
+.bk-table tr:last-child td{border-bottom:none}
+.bk-name{color:var(--muted);font-weight:500;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bk-odds{
+  color:var(--text);font-weight:700;text-align:center
+}
+.bk-odds.best{
+  color:var(--success);background:rgba(52,211,153,0.08);
+  border-radius:4px;position:relative
+}
+.bk-odds.best::after{
+  content:"★";color:var(--success);font-size:0.7em;
+  position:absolute;top:1px;right:3px;opacity:0.7
+}
+.sel-label{font-weight:600;color:var(--text)}
+.no-odds{color:var(--muted);font-size:0.85em;padding:10px;text-align:center}
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-icon{font-size:2.5em;margin-bottom:8px}
+.empty-mini{text-align:center;padding:14px;color:var(--muted);font-size:0.85em;font-style:italic}
+
+/* Colonna destra: surebet + sistemi */
+.sb-item{
+  background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);
+  border-radius:7px;padding:9px 11px;margin-bottom:7px;
+  display:flex;flex-direction:column;gap:3px
+}
+.sb-name{font-weight:600;font-size:0.9em}
+.sb-combo{color:var(--muted);font-size:0.75em;word-break:break-all;line-height:1.4}
+.sb-profit{
+  background:linear-gradient(135deg,#34d399,#10b981);color:#fff;
+  padding:3px 9px;border-radius:5px;font-weight:700;font-size:0.85em;align-self:flex-start;margin-top:3px
+}
+.sys-block{
+  background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.2);
+  border-radius:8px;padding:10px 12px;margin-bottom:10px
+}
+.sys-title{
+  font-size:0.82em;font-weight:700;color:var(--accent2);
+  margin-bottom:7px;display:flex;align-items:center;gap:6px
+}
+.sys-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:4px 0;border-bottom:1px dashed rgba(129,140,248,0.15);font-size:0.78em;gap:6px
+}
+.sys-row:last-child{border-bottom:none}
+.sys-match{color:var(--text);min-width:100px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sys-sel{color:var(--muted);font-weight:600;min-width:30px}
+.sys-odds{color:var(--accent);font-weight:700;min-width:35px;text-align:right}
+.sys-edge{
+  background:var(--warn);color:#0f172a;padding:1px 5px;border-radius:3px;
+  font-size:0.9em;font-weight:700;min-width:42px;text-align:center
+}
+.sys-note{
+  margin-top:7px;padding-top:6px;border-top:1px dashed rgba(129,140,248,0.15);
+  font-size:0.7em;color:var(--muted);font-style:italic
+}
+.section-title{
+  font-size:0.78em;text-transform:uppercase;color:var(--muted);
+  padding:10px 4px 6px;letter-spacing:.5px;font-weight:700
+}
+
+/* Scrollbar */
+.col-body::-webkit-scrollbar{width:6px}
+.col-body::-webkit-scrollbar-track{background:transparent}
+.col-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.col-body::-webkit-scrollbar-thumb:hover{background:var(--hover)}
+
+/* Mobile */
+@media(max-width:1100px){
+  .main{grid-template-columns:1fr;height:auto}
+  .col{max-height:500px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>⚽ WinBet</h1>
+    <div class="sub">Quote live · <span id="last-update">—</span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="l">Partite</span><span class="v" id="stat-matches">0</span></div>
+    <div class="stat"><span class="l">Quote</span><span class="v" id="stat-odds">0</span></div>
+    <div class="stat"><span class="l">Surebet</span><span class="v" id="stat-surebets">0</span></div>
+    <div class="stat"><span class="l">Bookmaker</span><span class="v" id="stat-bookmakers">0</span></div>
+    <button class="btn-action" id="btn-cleanup" onclick="cleanupFinished()" title="Elimina partite con data/ora passata">
+      🗑️ Terminate <span class="badge-finished" id="finished-count">0</span>
+    </button>
+  </div>
+</header>
+
+<div class="toast" id="toast"></div>
+
+<div class="main">
+  <!-- COLONNA SINISTRA: CAMPIONATI -->
+  <div class="col">
+    <div class="col-header">
+      <h2>🏆 Campionati</h2>
+      <span style="font-size:.78em;color:var(--muted)" id="leagues-count">0</span>
+    </div>
+    <div class="search-box">
+      <input type="text" id="search-league" placeholder="🔍 Cerca campionato..." oninput="filterLeagues()">
+    </div>
+    <div class="col-body" id="leagues-list"></div>
+    <div class="bk-filters">
+      <h3>📡 Bookmaker</h3>
+      <div id="bookmakers-list"></div>
+    </div>
+  </div>
+
+  <!-- COLONNA CENTRALE: PARTITE -->
+  <div class="col">
+    <div class="col-header">
+      <h2>📋 Partite <span id="league-title" style="color:var(--accent);font-weight:400"></span></h2>
+      <span id="matches-count" style="font-size:.78em;color:var(--muted)">0</span>
+    </div>
+    <div class="col-body" id="matches-list">
+      <div class="empty"><div class="empty-icon">⚽</div>Seleziona un campionato dalla colonna sinistra</div>
+    </div>
+  </div>
+
+  <!-- COLONNA DESTRA: SUREBET + SISTEMI -->
+  <div class="col">
+    <div class="col-header">
+      <h2>📊 Analisi</h2>
+      <span id="surebets-count" style="font-size:.78em;color:var(--muted)">0</span>
+    </div>
+    <div class="col-body">
+      <div class="section-title">🚨 Surebet Rilevate</div>
+      <div id="surebets-container"></div>
+
+      <div class="section-title">🎰 Sistemi di Scommesse</div>
+      <div id="systems-container">
+        <div class="empty-mini">Calcolo in corso...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FLAGS = {
+  'serie-a': '🇮🇹', 'serie-b': '🇮🇹', 'champions-league': '🇪🇺',
+  'europa-league': '🇪🇺', 'premier-league': '🇬🇧', 'la-liga': '🇪🇸',
+  'bundesliga': '🇩🇪', 'ligue-1': '🇫🇷', 'conference-league': '🇪🇺',
+  'world-cup': '🌍', 'euro': '🇪🇺', 'mondiali-calcio': '🌍',
+  'amichevoli-nazionali': '🌍'
+};
+const NAMES = {
+  'serie-a': 'Serie A', 'serie-b': 'Serie B', 'champions-league': 'Champions League',
+  'europa-league': 'Europa League', 'premier-league': 'Premier League',
+  'la-liga': 'La Liga', 'bundesliga': 'Bundesliga', 'ligue-1': 'Ligue 1',
+  'conference-league': 'Conference League',
+  'mondiali-calcio': 'Mondiali 2026',
+  'amichevoli-nazionali': 'Amichevoli'
+};
+
+let currentLeague = null;
+let allMatches = [];
+let allBookmakers = new Set();
+let activeBookmakers = new Set();
+let allSurebets = [];
+
+// ── Stats
+async function loadStats() {
+  try {
+    const r = await fetch('/api/stats');
+    const s = await r.json();
+    document.getElementById('stat-matches').textContent = s.total_matches ?? 0;
+    document.getElementById('stat-odds').textContent = s.total_odds ?? 0;
+    document.getElementById('stat-surebets').textContent = s.active_surebets ?? 0;
+    document.getElementById('last-update').textContent =
+      s.last_update ? new Date(s.last_update).toLocaleString('it-IT', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—';
+  } catch(e) { console.error('Stats error:', e); }
+}
+
+// ── Leagues
+async function loadLeagues() {
+  try {
+    const r = await fetch('/api/leagues');
+    if (!r.ok) {
+      document.getElementById('leagues-list').innerHTML =
+        '<div class="empty-mini">Impossibile caricare i campionati</div>';
+      return;
+    }
+    const leagues = await r.json();
+    const container = document.getElementById('leagues-list');
+
+    // "Tutti" in cima
+    // Filtra leghe con id vuoto (tennis, basket, ecc.)
+    const validLeagues = leagues.filter(l => l.id && l.id.trim() !== '');
+    let html = `<div class="lg-item active" data-league="__ALL__">
+      <span class="flag">🌍</span>
+      <span class="lg-name">Tutti i campionati</span>
+      <span class="lg-count">${validLeagues.reduce((a,l) => a+l.matches, 0)}</span>
+    </div>`;
+
+    validLeagues.sort((a,b) => b.matches - a.matches).forEach(l => {
+      const name = NAMES[l.id] || l.id;
+      const flag = FLAGS[l.id] || '⚽';
+      html += `<div class="lg-item" data-league="${l.id}">
+        <span class="flag">${flag}</span>
+        <span class="lg-name">${name}</span>
+        <span class="lg-count">${l.matches}</span>
+      </div>`;
+    });
+    container.innerHTML = html;
+    document.getElementById('leagues-count').textContent = validLeagues.length;
+
+    // Click handler
+    container.querySelectorAll('.lg-item').forEach(item => {
+      item.addEventListener('click', () => {
+        container.querySelectorAll('.lg-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const lg = item.dataset.league;
+        if (lg === '__ALL__') {
+          currentLeague = null;
+          document.getElementById('league-title').textContent = '';
+          loadAllMatches();
+        } else {
+          currentLeague = lg;
+          document.getElementById('league-title').textContent = '· ' + (NAMES[lg] || lg);
+          loadLeagueMatches(lg);
+        }
+      });
+    });
+  } catch(e) { console.error('Leagues error:', e); }
+}
+
+function filterLeagues() {
+  const q = document.getElementById('search-league').value.toLowerCase();
+  document.querySelectorAll('.lg-item').forEach(el => {
+    el.style.display = el.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ── Matches: carica TUTTE le partite (per "Tutti") o solo una lega
+async function loadAllMatches() {
+  // Carica tutte le leghe in parallelo (escludendo id vuoti)
+  const leagues = await fetch('/api/leagues').then(r => r.json());
+  const validLeagues = leagues.filter(l => l.id && l.id.trim() !== '');
+  const allData = await Promise.all(validLeagues.map(l =>
+    fetch('/api/matches/' + encodeURIComponent(l.id)).then(r => r.json())
+  ));
+  allMatches = allData.flat();
+  collectBookmakers();
+  renderBookmakers();
+  renderMatches();
+}
+
+async function loadLeagueMatches(leagueId) {
+  const data = await fetch('/api/matches/' + encodeURIComponent(leagueId)).then(r => r.json());
+  // Aggiungi matches nuove, mantieni altre per bookmaker detection
+  data.forEach(m => {
+    const idx = allMatches.findIndex(x => x.id === m.id);
+    if (idx >= 0) allMatches[idx] = m;
+    else allMatches.push(m);
+  });
+  renderMatches();
+}
+
+function collectBookmakers() {
+  allBookmakers = new Set();
+  allMatches.forEach(m => {
+    if (m.odds) {
+      Object.values(m.odds).forEach(mkt => {
+        mkt.forEach(sel => {
+          // Raccogli bookmaker da all_bookmakers (nuova struttura) o fallback
+          if (sel.all_bookmakers && sel.all_bookmakers.length) {
+            sel.all_bookmakers.forEach(b => allBookmakers.add(b.bookmaker));
+          } else if (sel.bookmaker) {
+            allBookmakers.add(sel.bookmaker);
+          }
+        });
+      });
+    }
+  });
+  if (activeBookmakers.size === 0) {
+    activeBookmakers = new Set(allBookmakers);
+  }
+  document.getElementById('stat-bookmakers').textContent = allBookmakers.size;
+}
+
+function renderBookmakers() {
+  const container = document.getElementById('bookmakers-list');
+  const sorted = [...allBookmakers].sort();
+  container.innerHTML = sorted.map(bk => `
+    <label class="bk-filter">
+      <input type="checkbox" value="${bk}" ${activeBookmakers.has(bk) ? 'checked' : ''} onchange="updateBkFilter()">
+      ${bk}
+    </label>
+  `).join('');
+}
+
+function updateBkFilter() {
+  activeBookmakers = new Set();
+  document.querySelectorAll('.bk-filter input').forEach(cb => {
+    if (cb.checked) activeBookmakers.add(cb.value);
+  });
+  renderMatches();
+}
+
+function renderMatches() {
+  const container = document.getElementById('matches-list');
+  let matches = allMatches;
+  if (currentLeague) {
+    matches = matches.filter(m => m.league_id === currentLeague || m.league === currentLeague);
+  }
+  document.getElementById('matches-count').textContent = matches.length + ' partite';
+
+  if (!matches.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>Nessuna partita</div>';
+    return;
+  }
+
+  container.innerHTML = matches.map((m, idx) => {
+    // Costruisci quote aggregate filtrate per bookmaker
+    const markets = {};
+    if (m.odds) {
+      Object.entries(m.odds).forEach(([mkt, sels]) => {
+        if (!markets[mkt]) markets[mkt] = {};
+        sels.forEach(sel => {
+          // Usa all_bookmakers (lista completa) o fallback a singolo bookmaker
+          const bkList = sel.all_bookmakers || [{bookmaker: sel.bookmaker, odds: sel.odds}];
+          // Filtra solo bookmaker attivi
+          const filteredBk = bkList.filter(b => activeBookmakers.has(b.bookmaker));
+          if (filteredBk.length === 0) return; // salta selezione se nessun bookmaker attivo
+          if (!markets[mkt][sel.selection]) markets[mkt][sel.selection] = [];
+          filteredBk.forEach(b => {
+            markets[mkt][sel.selection].push({
+              bk: b.bookmaker,
+              odds: b.odds,
+              label: sel.label || sel.selection
+            });
+          });
+        });
+      });
+    }
+    const mktKeys = Object.keys(markets);
+    const mktHtml = mktKeys.length ? mktKeys.map(mk => {
+      const sels = markets[mk];
+      const bkSet = new Set();
+      Object.values(sels).forEach(arr => arr.forEach(({bk}) => bkSet.add(bk)));
+      const bkList = [...bkSet].sort();
+
+      // Tabella: righe = selezione, colonne = bookmaker
+      let tableHtml = '<table class="bk-table"><thead><tr><th>Selezione</th>';
+      bkList.forEach(bk => tableHtml += `<th style="text-align:center">${bk}</th>`);
+      tableHtml += '</tr></thead><tbody>';
+
+      Object.entries(sels).forEach(([selName, bkArr]) => {
+        const best = bkArr.reduce((a,b) => b.odds > a.odds ? b : a);
+        const bestBk = best.bk;
+        const bkMap = {};
+        bkArr.forEach(({bk, odds}) => bkMap[bk] = odds);
+
+        const label = best.label || selName;
+        tableHtml += `<tr><td class="sel-label">${label}</td>`;
+        bkList.forEach(bk => {
+          const odds = bkMap[bk];
+          if (odds !== undefined) {
+            const isBest = bk === bestBk;
+            tableHtml += `<td class="bk-odds ${isBest ? 'best' : ''}">${odds.toFixed(2)}</td>`;
+          } else {
+            tableHtml += `<td class="bk-odds" style="color:var(--muted);opacity:0.4">—</td>`;
+          }
+        });
+        tableHtml += '</tr>';
+      });
+      tableHtml += '</tbody></table>';
+
+      return `<div class="mkt-section">
+        <div class="mkt-title">
+          <span>${mk}</span>
+          <span class="mkt-count">${bkList.length} bookmaker</span>
+        </div>
+        ${tableHtml}
+      </div>`;
+    }).join('') : '<div class="no-odds">Nessuna quota per i bookmaker selezionati</div>';
+
+    const meta = [m.date, m.time].filter(Boolean).join(' ');
+    const leagueName = NAMES[m.league_id] || m.league_id || m.league || '';
+    return `<div class="match-card" data-match-id="${m.id}">
+      <div class="match-head" onclick="toggleMatch('${m.id}')">
+        <div class="match-teams">
+          <span><span class="home">${m.home}</span> <span class="vs">vs</span> <span class="away">${m.away}</span></span>
+          <span class="chevron">▼</span>
+        </div>
+        <div class="match-meta">
+          <span class="lg-tag">${leagueName}</span>
+          <span class="date-tag">${meta}</span>
+        </div>
+      </div>
+      <div class="match-body">${mktHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+// Espandi/collassa una partita
+function toggleMatch(matchId) {
+  const card = document.querySelector(`.match-card[data-match-id="${matchId}"]`);
+  if (card) card.classList.toggle('open');
+}
+
+// ── Surebets
+async function loadSurebets() {
+  try {
+    const r = await fetch('/api/surebets');
+    if (!r.ok) return;
+    allSurebets = await r.json();
+    const container = document.getElementById('surebets-container');
+    document.getElementById('surebets-count').textContent = allSurebets.length;
+
+    if (!allSurebets.length) {
+      container.innerHTML = '<div class="empty-mini">Nessuna surebet al momento</div>';
+      return;
+    }
+    container.innerHTML = allSurebets.slice(0, 15).map(s => {
+      let comboStr = '';
+      if (Array.isArray(s.selections)) {
+        comboStr = s.selections.map(sel => {
+          const name = sel.selection || sel.label || '?';
+          return `${name}@${(sel.odds||0).toFixed(2)} (${sel.bookmaker || '?'})`;
+        }).join(' · ');
+      } else if (typeof s.selections === 'object' && s.selections) {
+        comboStr = Object.entries(s.selections).map(([k,v]) =>
+          `${k}@${v.odds||'?'} (${v.bookmaker||'?'})`).join(' · ');
+      }
+      return `<div class="sb-item">
+        <div class="sb-name">${s.match}</div>
+        <div class="sb-combo">${comboStr}</div>
+        <div class="sb-profit">+${s.profit}%</div>
+      </div>`;
+    }).join('');
+  } catch(e) { console.error('Surebets error:', e); }
+}
+
+// ── Sistemi di scommesse (calcolati lato client)
+function renderSystems() {
+  const container = document.getElementById('systems-container');
+
+  // Raccogli selezioni 1X2/H2H con quote migliori
+  const allSels = [];
+  allMatches.forEach(m => {
+    if (!m.odds) return;
+    ['1x2', 'h2h', '1X2', 'H2H'].forEach(mk => {
+      if (m.odds[mk]) {
+        m.odds[mk].forEach(sel => {
+          if (sel.odds > 1.1 && activeBookmakers.has(sel.bookmaker)) {
+            allSels.push({
+              match: `${m.home} vs ${m.away}`,
+              match_id: m.id,
+              market: mk,
+              selection: sel.selection,
+              odds: sel.odds,
+              bookmaker: sel.bookmaker
+            });
+          }
+        });
+      }
+    });
+  });
+
+  if (!allSels.length) {
+    container.innerHTML = '<div class="empty-mini">Seleziona almeno un campionato</div>';
+    return;
+  }
+
+  // 1. Multipla 3: top 3 quote più alte
+  const top3 = [...allSels].sort((a,b) => b.odds - a.odds).slice(0, 3);
+  const totalMultipla = top3.reduce((a,b) => a * b.odds, 1);
+
+  // 2. Sistema 3/4: 3 partite con 2 selezioni ciascuna
+  const byMatch = {};
+  allSels.forEach(s => {
+    if (!byMatch[s.match_id]) byMatch[s.match_id] = [];
+    byMatch[s.match_id].push(s);
+  });
+  const top3Matches = Object.values(byMatch).sort((a,b) => b.length - a.length).slice(0, 3);
+  const sistema = [];
+  top3Matches.forEach(ms => {
+    [...ms].sort((a,b) => b.odds - a.odds).slice(0, 2).forEach(s => sistema.push(s));
+  });
+  const totalSistema = sistema.reduce((a,b) => a * b.odds, 1);
+
+  // 3. Value bets: selezione con quota > media +15%
+  const bySel = {};
+  allSels.forEach(s => {
+    const k = `${s.market}|${s.selection}`;
+    if (!bySel[k]) bySel[k] = [];
+    bySel[k].push(s);
+  });
+  const valueBets = [];
+  Object.values(bySel).forEach(group => {
+    const avg = group.reduce((a,b) => a + b.odds, 0) / group.length;
+    const max = group.reduce((a,b) => b.odds > a.odds ? b : a);
+    if (max.odds > avg * 1.15) {
+      valueBets.push({...max, avg: avg.toFixed(2), edge: ((max.odds - avg) / avg * 100).toFixed(1)});
+    }
+  });
+  valueBets.sort((a,b) => b.edge - a.edge);
+  const topValues = valueBets.slice(0, 5);
+
+  let html = '';
+
+  // Multipla
+  if (top3.length) {
+    html += `<div class="sys-block">
+      <div class="sys-title">🎯 Multipla 3 (Quota ${totalMultipla.toFixed(2)})</div>
+      ${top3.map(s => `<div class="sys-row">
+        <span class="sys-match">${s.match.slice(0,30)}</span>
+        <span class="sys-sel">${s.selection}</span>
+        <span class="sys-odds">${s.odds.toFixed(2)}</span>
+      </div>`).join('')}
+      <div class="sys-note">Vincita potenziale: €10 → €${(totalMultipla*10).toFixed(2)}</div>
+    </div>`;
+  }
+
+  // Sistema 3/4
+  if (sistema.length >= 4) {
+    html += `<div class="sys-block">
+      <div class="sys-title">🔀 Sistema 3/4 (${sistema.length} selezioni, quota max ${totalSistema.toFixed(2)})</div>
+      ${sistema.map(s => `<div class="sys-row">
+        <span class="sys-match">${s.match.slice(0,24)}</span>
+        <span class="sys-sel">${s.selection}</span>
+        <span class="sys-odds">${s.odds.toFixed(2)}</span>
+      </div>`).join('')}
+      <div class="sys-note">Vinci anche con 2 partite corrette su 3</div>
+    </div>`;
+  }
+
+  // Value bets
+  if (topValues.length) {
+    html += `<div class="sys-block">
+      <div class="sys-title">💎 Value Bets (quota sopra media)</div>
+      ${topValues.map(s => `<div class="sys-row">
+        <span class="sys-match">${s.match.slice(0,28)}</span>
+        <span class="sys-sel">${s.selection}</span>
+        <span class="sys-odds">${s.odds.toFixed(2)}</span>
+        <span class="sys-edge">+${s.edge}%</span>
+      </div>`).join('')}
+    </div>`;
+  }
+
+  container.innerHTML = html || '<div class="empty-mini">Sistemi non disponibili</div>';
+}
+
+// ── Toast notifications
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => { toast.className = 'toast'; }, 4000);
+}
+
+// ── Cleanup partite terminate
+async function loadFinishedCount() {
+  try {
+    const r = await fetch('/api/matches_finished_count');
+    const data = await r.json();
+    const badge = document.getElementById('finished-count');
+    const btn = document.getElementById('btn-cleanup');
+    badge.textContent = data.finished_count;
+    btn.disabled = data.finished_count === 0;
+  } catch(e) { console.error('Finished count error:', e); }
+}
+
+async function cleanupFinished() {
+  const btn = document.getElementById('btn-cleanup');
+  if (btn.disabled) return;
+  const count = parseInt(document.getElementById('finished-count').textContent);
+  if (!confirm(`Eliminare ${count} partite terminate e tutte le relative quote/surebet?`)) return;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Eliminazione...';
+  try {
+    const r = await fetch('/api/cleanup_finished', { method: 'POST' });
+    const data = await r.json();
+    if (data.deleted_matches > 0) {
+      showToast(
+        `✅ Eliminate ${data.deleted_matches} partite, ${data.deleted_odds} quote, ${data.deleted_history} history, ${data.deleted_surebets} surebet`,
+        'success'
+      );
+    } else {
+      showToast('ℹ️ Nessuna partita terminata da eliminare', 'info');
+    }
+    // Ricarica tutto
+    await loadStats();
+    await loadLeagues();
+    await loadSurebets();
+    await loadAllMatches();
+    renderSystems();
+    await loadFinishedCount();
+  } catch(e) {
+    showToast('❌ Errore: ' + e.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '🗑️ Terminate <span class="badge-finished" id="finished-count">' + count + '</span>';
+  }
+}
+
+// ── Init
+(async () => {
+  await loadStats();
+  await loadLeagues();
+  await loadSurebets();
+  await loadAllMatches();
+  renderSystems();
+  await loadFinishedCount();
+
+  // Refresh UI ogni 60s (i dati veri vengono aggiornati dal cronjob ogni ora)
+  setInterval(async () => {
+    await loadStats();
+    await loadSurebets();
+    if (currentLeague) await loadLeagueMatches(currentLeague);
+    else await loadAllMatches();
+    renderSystems();
+    await loadFinishedCount();
+  }, 60000);
+})();
+</script>
+</body>
+</html>

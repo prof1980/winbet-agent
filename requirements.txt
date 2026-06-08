@@ -1,0 +1,10 @@
+# WinBet - Dipendenze Python
+# Replicare con: pip install -r requirements.txt
+# oppure: uv pip install -r requirements.txt
+
+python-dotenv>=1.0.0
+requests>=2.31.0
+curl-cffi>=0.7.0
+playwright>=1.40.0
+beautifulsoup4>=4.12.0
+flask>=3.0.0

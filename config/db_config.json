@@ -1,0 +1,10 @@
+{
+  "engine": "sqlite",
+  "path": "/mnt/c/Users/angel/WinBet/.tmp/winbet.db",
+  "connection_string": "",
+  "wal_mode": true,
+  "options": {
+    "timeout_seconds": 30,
+    "check_same_thread": false
+  }
+}

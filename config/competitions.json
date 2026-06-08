@@ -1,0 +1,26 @@
+{
+  "competitions": [
+    {"key": "serie-a", "name": "Serie A", "country": "Italia", "priority": "high"},
+    {"key": "premier-league", "name": "Premier League", "country": "Inghilterra", "priority": "high"},
+    {"key": "la-liga", "name": "La Liga", "country": "Spagna", "priority": "high"},
+    {"key": "bundesliga", "name": "Bundesliga", "country": "Germania", "priority": "high"},
+    {"key": "ligue-1", "name": "Ligue 1", "country": "Francia", "priority": "high"},
+    {"key": "serie-b", "name": "Serie B", "country": "Italia", "priority": "medium"},
+    {"key": "championship", "name": "EFL Championship", "country": "Inghilterra", "priority": "medium"},
+    {"key": "liga-portugal", "name": "Primeira Liga", "country": "Portogallo", "priority": "medium"},
+    {"key": "eredivisie", "name": "Eredivisie", "country": "Olanda", "priority": "medium"},
+    {"key": "jupiler-pro", "name": "Jupiler Pro League", "country": "Belgio", "priority": "low"},
+    {"key": "super-league", "name": "Super League", "country": "Svizzera", "priority": "low"},
+    {"key": "bundesliga-2", "name": "2. Bundesliga", "country": "Germania", "priority": "low"},
+    {"key": "ligue-2", "name": "Ligue 2", "country": "Francia", "priority": "low"},
+    {"key": "la-liga-2", "name": "La Liga 2", "country": "Spagna", "priority": "low"},
+    {"key": "serie-c", "name": "Serie C", "country": "Italia", "priority": "low"},
+    {"key": "champions-league", "name": "UEFA Champions League", "country": "Europa", "priority": "high"},
+    {"key": "europa-league", "name": "UEFA Europa League", "country": "Europa", "priority": "medium"},
+    {"key": "conference-league", "name": "UEFA Conference League", "country": "Europa", "priority": "medium"},
+    {"key": "world-cup", "name": "FIFA World Cup", "country": "Mondiale", "priority": "high", "seasonal": true},
+    {"key": "euro", "name": "UEFA Euro", "country": "Europa", "priority": "high", "seasonal": true},
+    {"key": "nations-league", "name": "UEFA Nations League", "country": "Europa", "priority": "medium", "seasonal": true},
+    {"key": "copa-america", "name": "Copa América", "country": "Sudamerica", "priority": "medium", "seasonal": true}
+  ]
+}

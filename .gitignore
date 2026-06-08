@@ -1,0 +1,80 @@
+# ─── Ambiente virtuale Python ───
+venv/
+.venv/
+env/
+ENV/
+
+# ─── File segreti (MAI committare!) ───
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+secrets/
+
+# ─── Database (rigenerato) ───
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+winbet.db
+
+# ─── Cache e compiled ───
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.so
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ─── Log e runtime ───
+*.log
+logs/
+*.pid
+*.lock
+
+# ─── File temporanei ───
+.tmp/
+tmp/
+*.tmp
+*.swp
+*.swo
+*~
+
+# ─── Output e build artifacts ───
+*.zip
+*.tar.gz
+*.tgz
+dist/
+build/
+*.egg-info/
+
+# ─── IDE ───
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# ─── Output HTML statici (rigenerabili) ───
+dashboard.html
+
+# ─── Hermes/cron process files ───
+.cron.pid
+.email_monitor.pid
+email_handler.pid
+email_monitor.pid
+monitor.pid
+.cron_supervisor.sh
+.hermes_email_supervisor.sh
+email_monitor_supervisor.sh
+launch_email_monitor.py
+run_email_monitor.py
+run_monitor_supervisor.sh
+supervise_email_monitor.sh
+supervisor_email.sh
+winbet_monitor_wrapper.sh
+_launch_monitor.sh

@@ -1,0 +1,16 @@
+{
+  "markets": [
+    {"type": "1X2", "name": "Esito Finale", "enabled": true, "selections": ["1","X","2"]},
+    {"type": "DC", "name": "Doppia Chance", "enabled": true, "selections": ["1X","12","X2"]},
+    {"type": "OU25", "name": "Under/Over 2.5", "enabled": true, "selections": ["Under","Over"]},
+    {"type": "OU15", "name": "Under/Over 1.5", "enabled": true, "selections": ["Under","Over"]},
+    {"type": "OU35", "name": "Under/Over 3.5", "enabled": true, "selections": ["Under","Over"]},
+    {"type": "BTTS", "name": "Goal/No Goal", "enabled": true, "selections": ["GG","NG"]},
+    {"type": "H1X2", "name": "Handicap 1", "enabled": false, "selections": ["1","X","2"]},
+    {"type": "HOU", "name": "Handicap Over/Under", "enabled": false, "selections": ["Under","Over"]},
+    {"type": "CS", "name": "Correct Score", "enabled": false, "selections": []},
+    {"type": "HTFT", "name": "1° Tempo / Finale", "enabled": false, "selections": []},
+    {"type": "FIRST_GOAL", "name": "Primo Marcatore", "enabled": false, "selections": []},
+    {"type": "DRAW_NO_BET", "name": "Draw No Bet", "enabled": false, "selections": ["1","2"]}
+  ]
+}

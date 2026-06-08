@@ -1,0 +1,59 @@
+{
+  "version": "1.0.0",
+  "mode": "LIVE",
+  "api_key_theoddsapi": "",
+  "database": {
+    "type": "sqlite",
+    "path": "/mnt/c/Users/angel/WinBet/winbet.db"
+  },
+  "dashboard": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "refresh_seconds": 30
+  },
+  "scrape": {
+    "interval_minutes": 120,
+    "bookmakers_enabled": ["snai", "eurobet", "goldbet", "williamhill", "sisal", "lottomatica", "bet365", "oddsportal"],
+    "theoddsapi_regions": ["eu", "uk"],
+    "markets": ["h2h", "totals", "spreads"]
+  },
+  "notifications": {
+    "channels": ["telegram"],
+    "telegram_bot_token": "",
+    "telegram_chat_id": "",
+    "min_surebet_profit": 1.0,
+    "odds_change_threshold": 0.15
+  },
+  "odds_types": [
+    {"id": "1x2", "name": "1X2 (Esito Finale)", "enabled": true},
+    {"id": "ou25", "name": "Under/Over 2.5", "enabled": true},
+    {"id": "ou15", "name": "Under/Over 1.5", "enabled": true},
+    {"id": "ou35", "name": "Under/Over 3.5", "enabled": false},
+    {"id": "gng", "name": "Gol/NoGol", "enabled": true},
+    {"id": "dc", "name": "Doppia Chance (1X, X2, 12)", "enabled": true},
+    {"id": "ah", "name": "Handicap Asiatico", "enabled": false},
+    {"id": "corners", "name": "Corner Over/Under", "enabled": false},
+    {"id": "cards", "name": "Cartellini Over/Under", "enabled": false},
+    {"id": "htft", "name": "Esito 1T/2T", "enabled": false}
+  ],
+  "leagues": [
+    {"id": "serie-a", "name": "Serie A", "country": "Italy", "enabled": true},
+    {"id": "serie-b", "name": "Serie B", "country": "Italy", "enabled": true},
+    {"id": "champions-league", "name": "Champions League", "country": "Europe", "enabled": true},
+    {"id": "europa-league", "name": "Europa League", "country": "Europe", "enabled": true},
+    {"id": "premier-league", "name": "Premier League", "country": "England", "enabled": true},
+    {"id": "la-liga", "name": "La Liga", "country": "Spain", "enabled": true},
+    {"id": "bundesliga", "name": "Bundesliga", "country": "Germany", "enabled": true},
+    {"id": "ligue-1", "name": "Ligue 1", "country": "France", "enabled": true}
+  ],
+  "bookmakers": [
+    {"id": "snai", "name": "SNAI", "enabled": true, "priority": 1},
+    {"id": "eurobet", "name": "Eurobet", "enabled": true, "priority": 2},
+    {"id": "goldbet", "name": "Goldbet", "enabled": true, "priority": 3},
+    {"id": "williamhill", "name": "William Hill", "enabled": false, "priority": 4},
+    {"id": "sisal", "name": "Sisal", "enabled": true, "priority": 5},
+    {"id": "lottomatica", "name": "Lottomatica", "enabled": true, "priority": 6},
+    {"id": "bet365", "name": "Bet365", "enabled": false, "priority": 7},
+    {"id": "oddsportal", "name": "OddsPortal", "enabled": true, "priority": 8}
+  ]
+}
