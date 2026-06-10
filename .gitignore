@@ -78,3 +78,12 @@ supervise_email_monitor.sh
 supervisor_email.sh
 winbet_monitor_wrapper.sh
 _launch_monitor.sh
+
+# ─── Git askpass helpers (runtime, mai committare) ───
+.askpass.sh
+.git-askpass.sh
+*askpass*.sh
+
+# ─── Token e credenziali (sicurezza) ───
+GITHUB_PAT=*
+*token*.txt
