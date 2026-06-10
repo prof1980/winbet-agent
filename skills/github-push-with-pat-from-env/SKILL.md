@@ -16,7 +16,7 @@ di sicurezza **maschera automaticamente** la parte centrale con `...`:
 
 ```
 Token reale:    ghp_XX...XXXX  (40 char)
-Token visibile: ghp_XX...XXXX  (13 char) ← INUTILE
+Token visibile: ghp_XX...XXXX                            (13 char) ← INUTILE
 ```
 
 Il risultato: ogni push fallisce con 401 "Bad credentials" non perché il token
